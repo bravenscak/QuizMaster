@@ -5,6 +5,8 @@ using Microsoft.OpenApi.Models;
 using QuizMaster.Data;
 using QuizMaster.Repositories;
 using QuizMaster.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -25,6 +27,10 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IQuizRepository, QuizRepository>();
+builder.Services.AddScoped<IQuizService, QuizService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -73,8 +79,13 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidAudience = builder.Configuration["JwtSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]!))
+            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]!)),
+
+        NameClaimType = JwtRegisteredClaimNames.UniqueName,
+        RoleClaimType = ClaimTypes.Role
     };
+
+    options.MapInboundClaims = false;
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
