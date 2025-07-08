@@ -9,12 +9,14 @@ namespace QuizMaster.Services
     {
         private readonly IQuizRepository _quizRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
-        public QuizService(IQuizRepository quizRepository, ICategoryRepository categoryRepository, IMapper mapper)
+        public QuizService(IQuizRepository quizRepository, ICategoryRepository categoryRepository, INotificationService notificationService, IMapper mapper)
         {
             _quizRepository = quizRepository;
             _categoryRepository = categoryRepository;
+            _notificationService = notificationService;
             _mapper = mapper;
         }
 
@@ -50,6 +52,9 @@ namespace QuizMaster.Services
             quiz.UserId = organizerId; 
 
             var createdQuiz = await _quizRepository.CreateAsync(quiz);
+
+            await _notificationService.CreateNewQuizNotificationAsync(createdQuiz.Id, organizerId);
+
             return await MapQuizToDto(createdQuiz);
         }
 

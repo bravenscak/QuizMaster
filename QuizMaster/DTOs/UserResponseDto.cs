@@ -10,5 +10,6 @@
         public string? OrganizationName { get; set; }
         public string? Description { get; set; }
         public string RoleName { get; set; } = string.Empty;
+        public bool IsApproved { get; set; } 
     }
 }

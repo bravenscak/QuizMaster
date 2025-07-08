@@ -71,5 +71,26 @@ namespace QuizMaster.Repositories
         {
             return await _context.Users.AnyAsync(u => u.Username == username);
         }
+
+        public async Task<IEnumerable<User>> GetPendingOrganizersAsync()
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.RoleId == 2 && !u.IsApproved) 
+                .OrderBy(u => u.FirstName)
+                .ToListAsync();
+        }
+
+        public async Task<bool> ApproveOrganizerAsync(int id)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == id && u.RoleId == 2 && !u.IsApproved);
+
+            if (user == null) return false;
+
+            user.IsApproved = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

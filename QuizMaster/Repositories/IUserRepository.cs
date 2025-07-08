@@ -14,5 +14,7 @@ namespace QuizMaster.Repositories
         Task<bool> ExistsAsync(int id);
         Task<bool> EmailExistsAsync(string email);
         Task<bool> UsernameExistsAsync(string username);
+        Task<IEnumerable<User>> GetPendingOrganizersAsync();
+        Task<bool> ApproveOrganizerAsync(int id);
     }
 }

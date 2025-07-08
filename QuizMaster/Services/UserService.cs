@@ -67,7 +67,9 @@ namespace QuizMaster.Services
                 PasswordSalt = salt,
                 RoleId = roleId,
                 OrganizationName = organizationName,
-                Description = description
+                Description = description,
+                IsApproved = roleId != 2 
+
             };
 
             var createdUser = await _userRepository.CreateAsync(user);

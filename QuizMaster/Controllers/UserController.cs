@@ -31,7 +31,7 @@ namespace QuizMaster.Controllers
                 Username = u.Username,
                 OrganizationName = u.OrganizationName,
                 Description = u.Description,
-                RoleName = u.Role.Name
+                RoleName = u.RoleName
             });
 
             return Ok(userDtos);
@@ -53,7 +53,7 @@ namespace QuizMaster.Controllers
                 Username = user.Username,
                 OrganizationName = user.OrganizationName,
                 Description = user.Description,
-                RoleName = user.Role.Name
+                RoleName = user.RoleName
             };
 
             return Ok(userDto);

@@ -27,6 +27,8 @@ namespace QuizMaster.Models
 
         public string? OrganizationName { get; set; }
         public string? Description { get; set; }
+        public bool IsApproved { get; set; } = true; 
+
 
         public int RoleId { get; set; }
         public Role Role { get; set; } = null!;

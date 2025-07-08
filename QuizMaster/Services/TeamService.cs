@@ -9,12 +9,14 @@ namespace QuizMaster.Services
     {
         private readonly ITeamRepository _teamRepository;
         private readonly IQuizRepository _quizRepository;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
-        public TeamService(ITeamRepository teamRepository, IQuizRepository quizRepository, IMapper mapper)
+        public TeamService(ITeamRepository teamRepository, IQuizRepository quizRepository, INotificationService notificationService, IMapper mapper)
         {
             _teamRepository = teamRepository;
             _quizRepository = quizRepository;
+            _notificationService = notificationService;
             _mapper = mapper;
         }
 
@@ -67,6 +69,9 @@ namespace QuizMaster.Services
             team.UserId = userId; 
 
             var createdTeam = await _teamRepository.CreateAsync(team);
+
+            await _notificationService.CreateTeamRegisteredNotificationAsync(createdTeam.Id, createTeamDto.QuizId);
+
             return _mapper.Map<TeamDto>(createdTeam);
         }
 
@@ -121,6 +126,15 @@ namespace QuizMaster.Services
             team.FinalPosition = resultDto.FinalPosition;
 
             var updatedTeam = await _teamRepository.UpdateAsync(team);
+
+            var allTeamsWithResults = await _teamRepository.GetByQuizIdAsync(team.QuizId);
+            var teamsWithoutResults = allTeamsWithResults.Where(t => !t.FinalPosition.HasValue).Count();
+
+            if (teamsWithoutResults == 0) 
+            {
+                await _notificationService.CreateQuizResultsNotificationAsync(team.QuizId);
+            }
+
             return _mapper.Map<TeamDto>(updatedTeam);
         }
 
