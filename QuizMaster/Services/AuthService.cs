@@ -77,7 +77,8 @@ namespace QuizMaster.Services
                     Username = user.Username,
                     OrganizationName = user.OrganizationName,
                     Description = user.Description,
-                    RoleName = user.Role.Name
+                    RoleName = user.Role.Name,
+                    IsApproved = user.IsApproved
                 }
             };
         }

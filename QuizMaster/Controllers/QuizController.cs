@@ -12,10 +12,12 @@ namespace QuizMaster.Controllers
     public class QuizController : ControllerBase
     {
         private readonly IQuizService _quizService;
+        private readonly IUserService _userService;
 
-        public QuizController(IQuizService quizService)
+        public QuizController(IQuizService quizService, IUserService userService)
         {
             _quizService = quizService;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -52,6 +54,13 @@ namespace QuizMaster.Controllers
             try
             {
                 var userId = GetCurrentUserId();
+
+                var user = await _userService.GetUserByIdAsync(userId);
+                if (user != null && !user.IsApproved)
+                {
+                    return StatusCode(403, "Your organizer account is pending admin approval");
+                }
+
                 var quiz = await _quizService.CreateQuizAsync(createQuizDto, userId);
                 return CreatedAtAction(nameof(GetQuiz), new { id = quiz.Id }, quiz);
             }
