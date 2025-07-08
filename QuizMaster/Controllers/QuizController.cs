@@ -19,30 +19,10 @@ namespace QuizMaster.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<QuizDto>>> GetQuizzes()
+        public async Task<ActionResult<IEnumerable<QuizDto>>> GetQuizzes([FromQuery] QuizSearchDto? searchDto = null)
         {
-            var quizzes = await _quizService.GetAllQuizzesAsync();
-            return Ok(quizzes);
-        }
-
-        [HttpGet("upcoming")]
-        public async Task<ActionResult<IEnumerable<QuizDto>>> GetUpcomingQuizzes()
-        {
-            var quizzes = await _quizService.GetUpcomingQuizzesAsync();
-            return Ok(quizzes);
-        }
-
-        [HttpGet("past")]
-        public async Task<ActionResult<IEnumerable<QuizDto>>> GetPastQuizzes()
-        {
-            var quizzes = await _quizService.GetPastQuizzesAsync();
-            return Ok(quizzes);
-        }
-
-        [HttpGet("category/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<QuizDto>>> GetQuizzesByCategory(int categoryId)
-        {
-            var quizzes = await _quizService.GetQuizzesByCategoryAsync(categoryId);
+            searchDto ??= new QuizSearchDto();
+            var quizzes = await _quizService.SearchUpcomingQuizzesAsync(searchDto);
             return Ok(quizzes);
         }
 

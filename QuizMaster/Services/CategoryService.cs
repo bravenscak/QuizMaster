@@ -1,4 +1,5 @@
-﻿using QuizMaster.DTOs;
+﻿using AutoMapper;
+using QuizMaster.DTOs;
 using QuizMaster.Models;
 using QuizMaster.Repositories;
 
@@ -7,20 +8,18 @@ namespace QuizMaster.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        public CategoryService(ICategoryRepository categoryRepository)
+        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
             var categories = await _categoryRepository.GetAllAsync();
-            return categories.Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name
-            });
+            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
         }
 
         public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
@@ -28,11 +27,7 @@ namespace QuizMaster.Services
             var category = await _categoryRepository.GetByIdAsync(id);
             if (category == null) return null;
 
-            return new CategoryDto
-            {
-                Id = category.Id,
-                Name = category.Name
-            };
+            return _mapper.Map<CategoryDto>(category);
         }
 
         public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
@@ -40,18 +35,10 @@ namespace QuizMaster.Services
             if (await _categoryRepository.NameExistsAsync(createCategoryDto.Name))
                 throw new ArgumentException($"Category with name '{createCategoryDto.Name}' already exists");
 
-            var category = new Category
-            {
-                Name = createCategoryDto.Name
-            };
-
+            var category = _mapper.Map<Category>(createCategoryDto);
             var createdCategory = await _categoryRepository.CreateAsync(category);
 
-            return new CategoryDto
-            {
-                Id = createdCategory.Id,
-                Name = createdCategory.Name
-            };
+            return _mapper.Map<CategoryDto>(createdCategory);
         }
 
         public async Task<CategoryDto> UpdateCategoryAsync(int id, UpdateCategoryDto updateCategoryDto)
@@ -66,12 +53,7 @@ namespace QuizMaster.Services
             existingCategory.Name = updateCategoryDto.Name;
 
             var updatedCategory = await _categoryRepository.UpdateAsync(existingCategory);
-
-            return new CategoryDto
-            {
-                Id = updatedCategory.Id,
-                Name = updatedCategory.Name
-            };
+            return _mapper.Map<CategoryDto>(updatedCategory);
         }
 
         public async Task<bool> DeleteCategoryAsync(int id)
@@ -79,5 +61,4 @@ namespace QuizMaster.Services
             return await _categoryRepository.DeleteAsync(id);
         }
     }
-
 }

@@ -1,15 +1,13 @@
-﻿using QuizMaster.Models;
+﻿using QuizMaster.DTOs;
+using QuizMaster.Models;
 
 namespace QuizMaster.Repositories
 {
     public interface IQuizRepository
     {
-        Task<IEnumerable<Quiz>> GetAllAsync();
         Task<Quiz?> GetByIdAsync(int id);
         Task<IEnumerable<Quiz>> GetByOrganizerIdAsync(int organizerId);
-        Task<IEnumerable<Quiz>> GetByCategoryIdAsync(int categoryId);
-        Task<IEnumerable<Quiz>> GetUpcomingQuizzesAsync();
-        Task<IEnumerable<Quiz>> GetPastQuizzesAsync();
+        Task<IEnumerable<Quiz>> SearchUpcomingQuizzesAsync(QuizSearchDto searchDto);
         Task<Quiz> CreateAsync(Quiz quiz);
         Task<Quiz> UpdateAsync(Quiz quiz);
         Task<bool> DeleteAsync(int id);

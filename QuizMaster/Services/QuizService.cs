@@ -1,4 +1,5 @@
-﻿using QuizMaster.DTOs;
+﻿using AutoMapper;
+using QuizMaster.DTOs;
 using QuizMaster.Models;
 using QuizMaster.Repositories;
 
@@ -8,16 +9,18 @@ namespace QuizMaster.Services
     {
         private readonly IQuizRepository _quizRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        public QuizService(IQuizRepository quizRepository, ICategoryRepository categoryRepository)
+        public QuizService(IQuizRepository quizRepository, ICategoryRepository categoryRepository, IMapper mapper)
         {
             _quizRepository = quizRepository;
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<QuizDto>> GetAllQuizzesAsync()
+        public async Task<IEnumerable<QuizDto>> SearchUpcomingQuizzesAsync(QuizSearchDto searchDto)
         {
-            var quizzes = await _quizRepository.GetAllAsync();
+            var quizzes = await _quizRepository.SearchUpcomingQuizzesAsync(searchDto);
             return await MapQuizzesToDtos(quizzes);
         }
 
@@ -35,24 +38,6 @@ namespace QuizMaster.Services
             return await MapQuizzesToDtos(quizzes);
         }
 
-        public async Task<IEnumerable<QuizDto>> GetQuizzesByCategoryAsync(int categoryId)
-        {
-            var quizzes = await _quizRepository.GetByCategoryIdAsync(categoryId);
-            return await MapQuizzesToDtos(quizzes);
-        }
-
-        public async Task<IEnumerable<QuizDto>> GetUpcomingQuizzesAsync()
-        {
-            var quizzes = await _quizRepository.GetUpcomingQuizzesAsync();
-            return await MapQuizzesToDtos(quizzes);
-        }
-
-        public async Task<IEnumerable<QuizDto>> GetPastQuizzesAsync()
-        {
-            var quizzes = await _quizRepository.GetPastQuizzesAsync();
-            return await MapQuizzesToDtos(quizzes);
-        }
-
         public async Task<QuizDto> CreateQuizAsync(CreateQuizDto createQuizDto, int organizerId)
         {
             if (!await _categoryRepository.ExistsAsync(createQuizDto.CategoryId))
@@ -61,22 +46,8 @@ namespace QuizMaster.Services
             if (createQuizDto.DateTime <= DateTime.UtcNow)
                 throw new ArgumentException("Quiz date must be in the future");
 
-            var quiz = new Quiz
-            {
-                Name = createQuizDto.Name,
-                LocationName = createQuizDto.LocationName,
-                Address = createQuizDto.Address,
-                Latitude = createQuizDto.Latitude,
-                Longitude = createQuizDto.Longitude,
-                EntryFee = createQuizDto.EntryFee,
-                DateTime = createQuizDto.DateTime,
-                MaxParticipantsPerTeam = createQuizDto.MaxParticipantsPerTeam,
-                MaxTeams = createQuizDto.MaxTeams,
-                DurationMinutes = createQuizDto.DurationMinutes,
-                Description = createQuizDto.Description,
-                UserId = organizerId,
-                CategoryId = createQuizDto.CategoryId
-            };
+            var quiz = _mapper.Map<Quiz>(createQuizDto);
+            quiz.UserId = organizerId; 
 
             var createdQuiz = await _quizRepository.CreateAsync(quiz);
             return await MapQuizToDto(createdQuiz);
@@ -88,7 +59,7 @@ namespace QuizMaster.Services
             if (existingQuiz == null)
                 throw new ArgumentException("Quiz not found");
 
-            if (!await CanUserModifyQuizAsync(id, organizerId, userRole))  
+            if (!await CanUserModifyQuizAsync(id, organizerId, userRole))
                 throw new UnauthorizedAccessException("You can only modify your own quizzes");
 
             if (!await _categoryRepository.ExistsAsync(updateQuizDto.CategoryId))
@@ -131,26 +102,11 @@ namespace QuizMaster.Services
 
         private async Task<QuizDto> MapQuizToDto(Quiz quiz)
         {
-            var registeredTeamsCount = await _quizRepository.GetRegisteredTeamsCountAsync(quiz.Id);
+            var quizDto = _mapper.Map<QuizDto>(quiz);
 
-            return new QuizDto
-            {
-                Id = quiz.Id,
-                Name = quiz.Name,
-                LocationName = quiz.LocationName,
-                Address = quiz.Address,
-                Latitude = quiz.Latitude,
-                Longitude = quiz.Longitude,
-                EntryFee = quiz.EntryFee,
-                DateTime = quiz.DateTime,
-                MaxParticipantsPerTeam = quiz.MaxParticipantsPerTeam,
-                MaxTeams = quiz.MaxTeams,
-                DurationMinutes = quiz.DurationMinutes,
-                Description = quiz.Description,
-                OrganizerName = $"{quiz.User.FirstName} {quiz.User.LastName}",
-                CategoryName = quiz.Category.Name,
-                RegisteredTeamsCount = registeredTeamsCount
-            };
+            quizDto.RegisteredTeamsCount = await _quizRepository.GetRegisteredTeamsCountAsync(quiz.Id);
+
+            return quizDto;
         }
 
         private async Task<IEnumerable<QuizDto>> MapQuizzesToDtos(IEnumerable<Quiz> quizzes)

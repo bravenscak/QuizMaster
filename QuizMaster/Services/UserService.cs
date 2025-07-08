@@ -1,5 +1,8 @@
-﻿using QuizMaster.Models;
+﻿using AutoMapper;
+using QuizMaster.DTOs;
+using QuizMaster.Models;
 using QuizMaster.Repositories;
+using BCrypt.Net;
 
 namespace QuizMaster.Services
 {
@@ -7,21 +10,27 @@ namespace QuizMaster.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository)
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserResponseDto>> GetAllUsersAsync()
         {
-            return await _userRepository.GetAllAsync();
+            var users = await _userRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<UserResponseDto>>(users);
         }
 
-        public async Task<User?> GetUserByIdAsync(int id)
+        public async Task<UserResponseDto?> GetUserByIdAsync(int id)
         {
-            return await _userRepository.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null) return null;
+
+            return _mapper.Map<UserResponseDto>(user);
         }
 
         public async Task<User?> GetUserByEmailAsync(string email)
@@ -62,9 +71,8 @@ namespace QuizMaster.Services
             };
 
             var createdUser = await _userRepository.CreateAsync(user);
-
             return await _userRepository.GetByIdAsync(createdUser.Id) ?? createdUser;
-            }
+        }
 
         public async Task<User?> LoginAsync(string usernameOrEmail, string password)
         {
