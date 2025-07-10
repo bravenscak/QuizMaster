@@ -48,7 +48,7 @@ builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(typeof(Program));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -66,7 +66,7 @@ builder.Services.AddSwaggerGen(option =>
         Scheme = "Bearer"
     });
 
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement    
     {
         {
             new OpenApiSecurityScheme
