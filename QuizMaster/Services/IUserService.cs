@@ -11,9 +11,10 @@ namespace QuizMaster.Services
         Task<User?> GetUserByUsernameAsync(string username);
         Task<User> RegisterUserAsync(string firstName, string lastName, string email, string username, string password, int roleId, string? organizationName = null, string? description = null);
         Task<User?> LoginAsync(string usernameOrEmail, string password);
-        Task<User> UpdateUserAsync(User user);
+        Task<UserResponseDto?> UpdateUserAsync(int userId, UpdateUserDto updateUserDto);
         Task<bool> DeleteUserAsync(int id);
         Task<bool> EmailExistsAsync(string email);
         Task<bool> UsernameExistsAsync(string username);
+        Task ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
     }
 }

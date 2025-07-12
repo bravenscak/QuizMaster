@@ -93,9 +93,35 @@ namespace QuizMaster.Services
             return await _userRepository.GetByIdAsync(user.Id);
         }
 
-        public async Task<User> UpdateUserAsync(User user)
+        public async Task<UserResponseDto?> UpdateUserAsync(int userId, UpdateUserDto updateUserDto)
         {
-            return await _userRepository.UpdateAsync(user);
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) return null;
+
+            var existingUserWithEmail = await _userRepository.GetByEmailAsync(updateUserDto.Email);
+            if (existingUserWithEmail != null && existingUserWithEmail.Id != userId)
+                throw new ArgumentException("Email već postoji u sustavu");
+
+            user.FirstName = updateUserDto.FirstName;
+            user.LastName = updateUserDto.LastName;
+            user.Email = updateUserDto.Email;
+            user.OrganizationName = updateUserDto.OrganizationName;
+            user.Description = updateUserDto.Description;
+
+            var updatedUser = await _userRepository.UpdateAsync(user);
+
+            return new UserResponseDto
+            {
+                Id = updatedUser.Id,
+                FirstName = updatedUser.FirstName,
+                LastName = updatedUser.LastName,
+                Email = updatedUser.Email,
+                Username = updatedUser.Username,
+                OrganizationName = updatedUser.OrganizationName,
+                Description = updatedUser.Description,
+                RoleName = updatedUser.Role.Name,
+                IsApproved = updatedUser.IsApproved
+            };
         }
 
         public async Task<bool> DeleteUserAsync(int id)
@@ -111,6 +137,25 @@ namespace QuizMaster.Services
         public async Task<bool> UsernameExistsAsync(string username)
         {
             return await _userRepository.UsernameExistsAsync(username);
+        }
+
+        public async Task ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new ArgumentException("Korisnik nije pronađen");
+
+            var currentHashedPassword = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.CurrentPassword, user.PasswordSalt);
+            if (currentHashedPassword != user.PasswordHash)
+                throw new UnauthorizedAccessException("Trenutna lozinka nije ispravna");
+
+            var newSalt = BCrypt.Net.BCrypt.GenerateSalt();
+            var newHashedPassword = BCrypt.Net.BCrypt.HashPassword(changePasswordDto.NewPassword, newSalt);
+
+            user.PasswordHash = newHashedPassword;
+            user.PasswordSalt = newSalt;
+
+            await _userRepository.UpdateAsync(user);
         }
     }
 }

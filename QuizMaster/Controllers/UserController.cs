@@ -68,5 +68,64 @@ namespace QuizMaster.Controllers
 
             return NoContent();
         }
+
+        [HttpPut("profile")]
+        public async Task<ActionResult<UserResponseDto>> UpdateProfile([FromBody] UpdateUserDto updateUserDto)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var updatedUser = await _userService.UpdateUserAsync(userId, updateUserDto);
+
+                if (updatedUser == null)
+                    return NotFound();
+
+                var userDto = new UserResponseDto
+                {
+                    Id = updatedUser.Id,
+                    FirstName = updatedUser.FirstName,
+                    LastName = updatedUser.LastName,
+                    Email = updatedUser.Email,
+                    Username = updatedUser.Username,
+                    OrganizationName = updatedUser.OrganizationName,
+                    Description = updatedUser.Description,
+                    RoleName = updatedUser.RoleName,
+                    IsApproved = updatedUser.IsApproved
+                };
+
+                return Ok(userDto);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("change-password")]
+        public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                await _userService.ChangePasswordAsync(userId, changePasswordDto);
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+                throw new UnauthorizedAccessException("Invalid user token");
+            return userId;
+        }
     }
 }
