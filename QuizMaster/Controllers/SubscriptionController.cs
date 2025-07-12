@@ -30,7 +30,6 @@ namespace QuizMaster.Controllers
         {
             var userId = GetCurrentUserId();
 
-            // Ne možeš se pretplatiti sam na sebe
             if (userId == organizerId)
                 return BadRequest("Cannot subscribe to yourself");
 

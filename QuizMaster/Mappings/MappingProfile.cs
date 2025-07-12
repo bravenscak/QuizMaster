@@ -24,7 +24,7 @@ namespace QuizMaster.Mappings
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
             CreateMap<Quiz, QuizDto>()
-                .ForMember(dest => dest.OrganizerName, opt => opt.MapFrom(src => $"{src.User.FirstName} {src.User.LastName}"))
+                .ForMember(dest => dest.OrganizerName, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.User.OrganizationName) ? src.User.OrganizationName : src.User.Username))
                 .ForMember(dest => dest.OrganizerId, opt => opt.MapFrom(src => src.UserId))  
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.RegisteredTeamsCount, opt => opt.Ignore()); 
@@ -43,12 +43,14 @@ namespace QuizMaster.Mappings
                 .ForMember(dest => dest.Teams, opt => opt.Ignore());
 
             CreateMap<Team, TeamDto>()
-                .ForMember(dest => dest.CaptainName, opt => opt.MapFrom(src => $"{src.User.FirstName} {src.User.LastName}"))
+                .ForMember(dest => dest.CaptainName, opt => opt.MapFrom(src => src.User.Username))
                 .ForMember(dest => dest.QuizName, opt => opt.MapFrom(src => src.Quiz.Name))
-                .ForMember(dest => dest.QuizDateTime, opt => opt.MapFrom(src => src.Quiz.DateTime));
+                .ForMember(dest => dest.QuizDateTime, opt => opt.MapFrom(src => src.Quiz.DateTime))
+                .ForMember(dest => dest.MaxParticipantsPerTeam, opt => opt.MapFrom(src => src.Quiz.MaxParticipantsPerTeam))
+                .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.QuizId));
 
             CreateMap<Team, QuizTeamDto>()
-                .ForMember(dest => dest.CaptainName, opt => opt.MapFrom(src => $"{src.User.FirstName} {src.User.LastName}"))
+                .ForMember(dest => dest.CaptainName, opt => opt.MapFrom(src => src.User.Username))
                 .ForMember(dest => dest.CaptainEmail, opt => opt.MapFrom(src => src.User.Email));
 
             CreateMap<CreateTeamDto, Team>()

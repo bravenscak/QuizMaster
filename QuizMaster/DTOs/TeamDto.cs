@@ -11,6 +11,8 @@ namespace QuizMaster.DTOs
         public string CaptainName { get; set; } = string.Empty;
         public string QuizName { get; set; } = string.Empty;
         public DateTime QuizDateTime { get; set; }
+        public int MaxParticipantsPerTeam { get; set; }
+        public int QuizId { get; set; }
     }
 
     public class CreateTeamDto

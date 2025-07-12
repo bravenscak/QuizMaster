@@ -4,6 +4,7 @@
     {
         public string? SearchTerm { get; set; }
         public int? CategoryId { get; set; }
+        public int? OrganizerId { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
         public QuizSortBy? SortBy { get; set; } = QuizSortBy.DateTime;

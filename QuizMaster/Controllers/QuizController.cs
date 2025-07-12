@@ -47,6 +47,13 @@ namespace QuizMaster.Controllers
             return Ok(quiz);
         }
 
+        [HttpGet("organizer/{organizerId}")]
+        public async Task<ActionResult<IEnumerable<QuizDto>>> GetQuizzesByOrganizer(int organizerId)
+        {
+            var quizzes = await _quizService.GetQuizzesByOrganizerAsync(organizerId);
+            return Ok(quizzes);
+        }
+
         [HttpPost]
         [Authorize(Roles = "ORGANIZER")]
         public async Task<ActionResult<QuizDto>> CreateQuiz([FromBody] CreateQuizDto createQuizDto)

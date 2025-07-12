@@ -39,6 +39,11 @@ namespace QuizMaster.Repositories
                 query = query.Where(q => q.CategoryId == searchDto.CategoryId.Value);
             }
 
+            if (searchDto.OrganizerId.HasValue)
+            {
+                query = query.Where(q => q.UserId == searchDto.OrganizerId.Value);
+            }
+
             if (searchDto.DateFrom.HasValue)
             {
                 query = query.Where(q => q.DateTime >= searchDto.DateFrom.Value);
