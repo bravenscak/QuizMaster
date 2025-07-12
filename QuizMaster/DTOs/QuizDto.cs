@@ -17,6 +17,7 @@ namespace QuizMaster.DTOs
         public int? DurationMinutes { get; set; }
         public string? Description { get; set; }
         public string OrganizerName { get; set; } = string.Empty;
+        public int OrganizerId { get; set; }  
         public string CategoryName { get; set; } = string.Empty;
         public int RegisteredTeamsCount { get; set; }
     }
