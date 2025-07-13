@@ -93,7 +93,7 @@ namespace QuizMaster.Services
                 var notification = new CreateNotificationDto
                 {
                     Title = "Novi kviz!",
-                    Message = $"Organizator {quiz.User.FirstName} {quiz.User.LastName} je objavio novi kviz: {quiz.Name}",
+                    Message = $"Organizator {quiz.User.OrganizationName} je objavio novi kviz: {quiz.Name}",
                     Type = NotificationTypes.NewQuiz,
                     UserId = subscription.SubscriberId,
                     RelatedEntityId = quizId
