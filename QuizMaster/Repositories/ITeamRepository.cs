@@ -15,5 +15,6 @@ namespace QuizMaster.Repositories
         Task<bool> ExistsAsync(int id);
         Task<int> GetTeamCountByQuizAsync(int quizId);
         Task<bool> UserHasTeamInQuizAsync(int userId, int quizId);
+        Task<int> GetMaxParticipantsInTeamsAsync(int quizId);
     }
 }

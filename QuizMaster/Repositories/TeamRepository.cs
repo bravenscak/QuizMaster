@@ -99,5 +99,14 @@ namespace QuizMaster.Repositories
         {
             return await _context.Teams.AnyAsync(t => t.UserId == userId && t.QuizId == quizId);
         }
+
+        public async Task<int> GetMaxParticipantsInTeamsAsync(int quizId)
+        {
+            var teams = await _context.Teams
+                .Where(t => t.QuizId == quizId)
+                .ToListAsync();
+
+            return teams.Any() ? teams.Max(t => t.ParticipantCount) : 0;
+        }
     }
 }

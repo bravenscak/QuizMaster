@@ -9,13 +9,15 @@ namespace QuizMaster.Services
     {
         private readonly IQuizRepository _quizRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ITeamRepository _teamRepository;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
-        public QuizService(IQuizRepository quizRepository, ICategoryRepository categoryRepository, INotificationService notificationService, IMapper mapper)
+        public QuizService(IQuizRepository quizRepository, ICategoryRepository categoryRepository, ITeamRepository teamRepository, INotificationService notificationService, IMapper mapper)
         {
             _quizRepository = quizRepository;
             _categoryRepository = categoryRepository;
+            _teamRepository = teamRepository; 
             _notificationService = notificationService;
             _mapper = mapper;
         }
@@ -66,6 +68,17 @@ namespace QuizMaster.Services
 
             if (!await CanUserModifyQuizAsync(id, organizerId, userRole))
                 throw new UnauthorizedAccessException("You can only modify your own quizzes");
+
+            if (existingQuiz.DateTime <= DateTime.UtcNow.AddHours(24))
+                throw new ArgumentException("Ne možete mijenjati kviz manje od 24 sata prije početka");
+
+            var currentRegisteredCount = await _quizRepository.GetRegisteredTeamsCountAsync(id);
+            if (updateQuizDto.MaxTeams < currentRegisteredCount)
+                throw new ArgumentException($"Ne možete postaviti maksimum na {updateQuizDto.MaxTeams} timova jer imate {currentRegisteredCount} prijavljenih timova");
+
+            var maxParticipantsInExistingTeams = await _teamRepository.GetMaxParticipantsInTeamsAsync(id);
+            if (updateQuizDto.MaxParticipantsPerTeam < maxParticipantsInExistingTeams)
+                throw new ArgumentException($"Ne možete postaviti maksimum na {updateQuizDto.MaxParticipantsPerTeam} igrača jer postoji tim s {maxParticipantsInExistingTeams} igrača");
 
             if (!await _categoryRepository.ExistsAsync(updateQuizDto.CategoryId))
                 throw new ArgumentException("Category does not exist");
