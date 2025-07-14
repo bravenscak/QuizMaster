@@ -8,11 +8,13 @@ namespace QuizMaster.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IQuizRepository _quizRepository;
         private readonly IMapper _mapper;
 
-        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
+        public CategoryService(ICategoryRepository categoryRepository, IQuizRepository quizRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+            _quizRepository = quizRepository;
             _mapper = mapper;
         }
 
@@ -58,6 +60,12 @@ namespace QuizMaster.Services
 
         public async Task<bool> DeleteCategoryAsync(int id)
         {
+            var quizzesInCategory = await _quizRepository.GetByCategoryIdAsync(id);
+            if (quizzesInCategory.Any())
+            {
+                throw new ArgumentException($"Ne možete obrisati kategoriju jer sadrži {quizzesInCategory.Count()} kvizova. Prvo premjestite ili obrišite kvizove.");
+            }
+
             return await _categoryRepository.DeleteAsync(id);
         }
     }

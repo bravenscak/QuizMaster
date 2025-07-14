@@ -19,6 +19,7 @@ namespace QuizMaster.DTOs
         public string OrganizerName { get; set; } = string.Empty;
         public int OrganizerId { get; set; }  
         public string CategoryName { get; set; } = string.Empty;
+        public int CategoryId { get; set; }
         public int RegisteredTeamsCount { get; set; }
     }
 

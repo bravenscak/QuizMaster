@@ -12,11 +12,13 @@ namespace QuizMaster.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IQuizService _quizService;
         private readonly IUserRepository _userRepository;
 
-        public AdminController(IUserService userService, IUserRepository userRepository)
+        public AdminController(IUserService userService, IQuizService quizService, IUserRepository userRepository)
         {
             _userService = userService;
+            _quizService = quizService;
             _userRepository = userRepository;
         }
 
@@ -76,6 +78,22 @@ namespace QuizMaster.Controllers
                 return NotFound();
 
             return NoContent();
+        }
+
+        [HttpGet("all-quizzes")]
+        public async Task<ActionResult<IEnumerable<QuizDto>>> GetAllQuizzes()
+        {
+            var users = await _userService.GetAllUsersAsync();
+            var organizers = users.Where(u => u.RoleName == "ORGANIZER");
+
+            var allQuizzes = new List<QuizDto>();
+            foreach (var organizer in organizers)
+            {
+                var quizzes = await _quizService.GetQuizzesByOrganizerAsync(organizer.Id);
+                allQuizzes.AddRange(quizzes);
+            }
+
+            return Ok(allQuizzes.OrderByDescending(q => q.DateTime));
         }
     }
 }

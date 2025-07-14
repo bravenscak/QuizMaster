@@ -27,6 +27,7 @@ namespace QuizMaster.Mappings
                 .ForMember(dest => dest.OrganizerName, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.User.OrganizationName) ? src.User.OrganizationName : src.User.Username))
                 .ForMember(dest => dest.OrganizerId, opt => opt.MapFrom(src => src.UserId))  
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+                .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.CategoryId)) 
                 .ForMember(dest => dest.RegisteredTeamsCount, opt => opt.Ignore()); 
 
             CreateMap<CreateQuizDto, Quiz>()

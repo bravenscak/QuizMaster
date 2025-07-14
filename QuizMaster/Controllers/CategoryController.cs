@@ -69,11 +69,22 @@ namespace QuizMaster.Controllers
         [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult> DeleteCategory(int id)
         {
-            var success = await _categoryService.DeleteCategoryAsync(id);
-            if (!success)
-                return NotFound();
+            try
+            {
+                var success = await _categoryService.DeleteCategoryAsync(id);
+                if (!success)
+                    return NotFound();
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Greška pri brisanju kategorije");
+            }
         }
     }
 }

@@ -144,5 +144,14 @@ namespace QuizMaster.Repositories
         {
             return await _context.Teams.CountAsync(t => t.QuizId == quizId);
         }
+
+        public async Task<IEnumerable<Quiz>> GetByCategoryIdAsync(int categoryId)
+        {
+            return await _context.Quizzes
+                .Include(q => q.User)
+                .Include(q => q.Category)
+                .Where(q => q.CategoryId == categoryId)
+                .ToListAsync();
+        }
     }
 }

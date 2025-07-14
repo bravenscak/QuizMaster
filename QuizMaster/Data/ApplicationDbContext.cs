@@ -39,6 +39,8 @@ namespace QuizMaster.Data
                 entity.Property(e => e.LocationName).HasMaxLength(100);
                 entity.Property(e => e.Address).HasMaxLength(200);
                 entity.Property(e => e.EntryFee).HasColumnType("decimal(10,2)");
+
+                entity.HasOne(q => q.Category).WithMany(c => c.Quizzes).HasForeignKey(q => q.CategoryId).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Team>(entity =>
@@ -53,12 +55,12 @@ namespace QuizMaster.Data
                 entity.HasOne(s => s.Subscriber)
                     .WithMany(u => u.Subscriptions)
                     .HasForeignKey(s => s.SubscriberId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade); 
 
                 entity.HasOne(s => s.Organizer)
                     .WithMany()
                     .HasForeignKey(s => s.OrganizerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Role>().HasData(

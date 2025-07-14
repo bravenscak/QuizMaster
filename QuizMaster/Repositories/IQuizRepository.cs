@@ -13,5 +13,6 @@ namespace QuizMaster.Repositories
         Task<bool> DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
         Task<int> GetRegisteredTeamsCountAsync(int quizId);
+        Task<IEnumerable<Quiz>> GetByCategoryIdAsync(int categoryId);
     }
 }
