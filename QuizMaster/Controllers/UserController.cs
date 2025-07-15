@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace QuizMaster.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -18,6 +17,7 @@ namespace QuizMaster.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -60,6 +60,7 @@ namespace QuizMaster.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult> DeleteUser(int id)
         {
             var success = await _userService.DeleteUserAsync(id);
@@ -69,7 +70,8 @@ namespace QuizMaster.Controllers
             return NoContent();
         }
 
-        [HttpPut("profile")]
+        [HttpPut("profile")]    
+        [Authorize]
         public async Task<ActionResult<UserResponseDto>> UpdateProfile([FromBody] UpdateUserDto updateUserDto)
         {
             try
@@ -102,6 +104,7 @@ namespace QuizMaster.Controllers
         }
 
         [HttpPut("change-password")]
+        [Authorize]
         public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
             try
